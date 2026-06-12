@@ -1,0 +1,11 @@
+{
+  "entry": [
+    "index.html",
+    "desktop/main.ts",
+    "desktop/worker.ts",
+    "scripts/*.ts",
+    "tests/*.test.ts",
+    "tests/*.test.tsx"
+  ],
+  "ignorePatterns": ["desktop/embedded.ts", "src/shared/embeddedFonts.ts", "dist/**", "build/**"]
+}

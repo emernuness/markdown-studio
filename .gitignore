@@ -1,0 +1,18 @@
+node_modules/
+dist/
+build/
+
+# Gerados no build (recriados por scripts/ensure-generated.ts e gen-embed.ts)
+desktop/embedded.ts
+src/shared/embeddedFonts.ts
+
+# Contexto local de desenvolvimento
+.memory-bank/
+.impeccable/
+.cursorrules
+.fallow-report.json
+
+# Sistema
+.DS_Store
+*.log
+release/

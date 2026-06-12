@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0.6" y2="1">
+      <stop offset="0" stop-color="#1c1917"/>
+      <stop offset="1" stop-color="#0c0a09"/>
+    </linearGradient>
+  </defs>
+  <rect x="100" y="100" width="824" height="824" rx="186" fill="url(#bg)"/>
+  <text x="512" y="568" text-anchor="middle"
+        font-family="Iowan Old Style, Palatino, Georgia, serif"
+        font-size="300" font-weight="700" letter-spacing="-6">
+    <tspan fill="#bc4b27">.</tspan><tspan fill="#f6f4ee">MD</tspan>
+  </text>
+  <rect x="362" y="722" width="300" height="22" rx="11" fill="#bc4b27"/>
+</svg>
