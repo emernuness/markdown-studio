@@ -11,7 +11,7 @@ const embeddedPath = join(ROOT, "desktop", "embedded.ts");
 if (!(await Bun.file(embeddedPath).exists())) {
   await Bun.write(
     embeddedPath,
-    '// GERADO por scripts/gen-embed.ts antes do build do binário. Stub vazio em dev.\nexport const EMBEDDED: Record<string, string> = {};\n',
+    "// GERADO por scripts/gen-embed.ts antes do build do binário. Stub vazio em dev.\nexport const EMBEDDED: Record<string, string> = {};\n",
   );
   console.log("desktop/embedded.ts (stub) criado.");
 }

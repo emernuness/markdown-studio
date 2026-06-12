@@ -12,7 +12,8 @@
     "lint": "biome check .",
     "lint:fix": "biome check --write .",
     "test": "vitest run",
-    "prepare": "bun run scripts/ensure-generated.ts"
+    "prepare": "bun run scripts/ensure-generated.ts",
+    "build:dmg": "bun run scripts/build-app.ts --dmg"
   },
   "dependencies": {
     "@codemirror/commands": "^6.10.3",

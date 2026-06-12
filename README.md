@@ -53,17 +53,9 @@ Abrir um arquivo markdown no Mac normalmente significa cair num editor de códig
 
 1. Baixe o arquivo `.dmg` da [última release](../../releases/latest)
 2. Abra o `.dmg` e arraste o Markdown Studio para a pasta Aplicativos
-3. O app é open source e não é assinado com certificado da Apple, então o macOS pede uma confirmação na primeira abertura:
-   - macOS 14 ou anterior: clique com o botão direito no app e escolha "Abrir"
-   - macOS 15 ou mais recente: tente abrir o app uma vez, depois vá em Ajustes do Sistema, Privacidade e Segurança, e clique em "Abrir Mesmo Assim"
+3. Abra normalmente: as releases são assinadas com Developer ID e notarizadas pela Apple, sem avisos de segurança
 
-Alternativa pelo Terminal (remove a quarentena do download):
-
-```sh
-xattr -cr "/Applications/Markdown Studio.app"
-```
-
-Se preferir, compile você mesmo a partir do código (seção Desenvolvimento abaixo): apps gerados localmente não passam pela quarentena.
+Se preferir, compile você mesmo a partir do código (seção Desenvolvimento abaixo).
 
 Requisitos: macOS 12 ou superior, Apple Silicon ou Intel.
 
@@ -90,7 +82,10 @@ Gerar o aplicativo:
 
 ```sh
 bun run build:app  # produz "build/Markdown Studio.app"
+bun run build:dmg  # também gera o instalador em release/
 ```
+
+O build assina e notariza automaticamente quando encontra um certificado Developer ID Application no Keychain e um perfil do notarytool chamado mdstudio-notary; sem eles, gera o app sem assinatura, suficiente para uso local.
 
 ## Arquitetura
 
@@ -113,7 +108,6 @@ Pontos de interesse:
 ## Limitações conhecidas
 
 - Apenas macOS (a janela nativa, os diálogos e os conversores de exportação usam recursos do sistema)
-- O app não é assinado nem notarizado; veja a seção de instalação
 - A exportação direta para PDF depende de um navegador Chromium instalado; sem ele, o app abre o diálogo de impressão para salvar como PDF
 
 ## Licença
