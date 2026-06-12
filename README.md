@@ -53,13 +53,17 @@ Abrir um arquivo markdown no Mac normalmente significa cair num editor de códig
 
 1. Baixe o arquivo `.dmg` da [última release](../../releases/latest)
 2. Abra o `.dmg` e arraste o Markdown Studio para a pasta Aplicativos
-3. Na primeira abertura, clique com o botão direito no app e escolha "Abrir" (o app não é assinado com certificado da Apple; o macOS pede essa confirmação uma única vez)
+3. O app é open source e não é assinado com certificado da Apple, então o macOS pede uma confirmação na primeira abertura:
+   - macOS 14 ou anterior: clique com o botão direito no app e escolha "Abrir"
+   - macOS 15 ou mais recente: tente abrir o app uma vez, depois vá em Ajustes do Sistema, Privacidade e Segurança, e clique em "Abrir Mesmo Assim"
 
-Se o macOS bloquear mesmo assim, rode no Terminal:
+Alternativa pelo Terminal (remove a quarentena do download):
 
 ```sh
 xattr -cr "/Applications/Markdown Studio.app"
 ```
+
+Se preferir, compile você mesmo a partir do código (seção Desenvolvimento abaixo): apps gerados localmente não passam pela quarentena.
 
 Requisitos: macOS 12 ou superior, Apple Silicon ou Intel.
 
