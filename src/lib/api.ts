@@ -56,6 +56,7 @@ export const api = {
     call<{ docs: SessionDoc[]; activeIndex?: number; lastClosed?: SessionDoc | null }>(
       "session/load",
     ),
+  version: () => call<{ version: string }>("version"),
   checkUpdate: () => call<UpdateInfo>("update/check"),
   installUpdate: (dmgUrl: string) =>
     call<{ ok: boolean; error?: string }>("update/install", { dmgUrl }),

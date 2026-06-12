@@ -150,10 +150,15 @@ for i in $(seq 1 12); do
 done
 pkill -f "markdown-studio-bin" 2>/dev/null
 sleep 1
-rm -rf "${target}"
-cp -R "${stagedApp}" "${target}"
+# copia o novo PRIMEIRO (ditto preserva a assinatura); só troca se a cópia der certo,
+# para nunca deixar o usuário sem o app caso algo falhe
+ditto "${stagedApp}" "${target}.new"
+if [ -d "${target}.new/Contents/MacOS" ]; then
+  rm -rf "${target}"
+  mv "${target}.new" "${target}"
+  xattr -cr "${target}" 2>/dev/null
+fi
 rm -rf "${stagedApp}" "${dmgPath}"
-xattr -cr "${target}" 2>/dev/null
 open "${target}"
 rm -f "$0"
 `,

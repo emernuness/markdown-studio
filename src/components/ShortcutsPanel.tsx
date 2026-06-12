@@ -1,4 +1,5 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
+import { api } from "../lib/api";
 import { cycleFocusWithin } from "../lib/focusTrap";
 import { Icon } from "./Icon";
 
@@ -46,6 +47,14 @@ const GROUPS: { title: string; items: [string, string][] }[] = [
 
 export function ShortcutsPanel({ onClose }: { onClose: () => void }) {
   const ref = useRef<HTMLDivElement>(null);
+  const [version, setVersion] = useState("");
+
+  useEffect(() => {
+    api
+      .version()
+      .then((v) => setVersion(v.version))
+      .catch(() => {});
+  }, []);
 
   useEffect(() => {
     ref.current?.focus();
@@ -75,7 +84,12 @@ export function ShortcutsPanel({ onClose }: { onClose: () => void }) {
       className="fixed bottom-10 right-6 z-50 w-[340px] rounded-2xl border border-line-strong bg-card p-4 shadow-[0_18px_40px_-18px_rgba(33,29,25,0.35),0_4px_12px_-6px_rgba(33,29,25,0.18)] outline-none"
     >
       <div className="mb-2 flex items-center justify-between">
-        <span className="text-[13px] font-semibold">Atalhos do teclado</span>
+        <span className="flex items-baseline gap-2 text-[13px] font-semibold">
+          Atalhos do teclado
+          {version && (
+            <span className="font-mono text-[10.5px] font-medium text-ink-faint">v{version}</span>
+          )}
+        </span>
         <button className="toolbar-btn" title="Fechar (Esc)" onClick={onClose}>
           <Icon name="close" size={13} strokeWidth={2.2} />
           <span className="sr-only">Fechar painel de atalhos</span>
