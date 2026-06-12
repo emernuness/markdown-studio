@@ -1,4 +1,5 @@
 import { SizeHint, Webview } from "webview-bun";
+import { installMainMenu } from "./menu";
 
 function resolveInitialFile(): string | null {
   const candidates = process.argv.slice(2).filter((a) => !a.startsWith("-"));
@@ -29,6 +30,12 @@ const webview = new Webview(false, {
   hint: SizeHint.NONE,
 });
 webview.title = "Markdown Studio";
+try {
+  // Sem main menu o macOS engole todos os atalhos ⌘ (inclusive copiar/colar)
+  installMainMenu("Markdown Studio");
+} catch (err) {
+  console.error("menu nativo indisponível:", err);
+}
 webview.navigate(`http://127.0.0.1:${port}/?token=${token}`);
 webview.run();
 

@@ -2,6 +2,8 @@ import { mkdir } from "node:fs/promises";
 import { homedir, tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { buildStandaloneHtml } from "../src/shared/htmlTemplate";
+import { checkForUpdate, installUpdate } from "./updater";
+import { APP_VERSION } from "./version";
 
 const MAX_FILE_BYTES = 25 * 1024 * 1024;
 
@@ -15,6 +17,27 @@ const CHROMIUM_CANDIDATES = [
 ];
 
 const CONFIG_DIR = join(homedir(), "Library", "Application Support", "MarkdownStudio");
+
+/** Conversor nativo HTML→PDF (WebKit) embutido no bundle; ausente em dev. */
+function findNativePdfHelper(): string | null {
+  const bundled = join(dirname(process.execPath), "..", "Resources", "html2pdf");
+  try {
+    if (Bun.file(bundled).size > 0) return bundled;
+  } catch {
+    // fora do bundle (dev)
+  }
+  return null;
+}
+
+async function nativePdf(htmlPath: string, outPath: string): Promise<boolean> {
+  const helper = findNativePdfHelper();
+  if (!helper) return false;
+  const proc = Bun.spawn([helper, htmlPath, outPath], { stderr: "pipe", stdout: "pipe" });
+  const timer = setTimeout(() => proc.kill(), 35_000);
+  const code = await proc.exited;
+  clearTimeout(timer);
+  return code === 0 && (await Bun.file(outPath).exists());
+}
 const CONFIG_PATH = join(CONFIG_DIR, "config.json");
 
 interface RecentFile {
@@ -91,6 +114,10 @@ async function exportPdf(
   const stamp = Date.now();
   const htmlPath = join(tmpdir(), `mdstudio-${stamp}.html`);
   await Bun.write(htmlPath, buildStandaloneHtml(html, title));
+
+  // 1ª opção: conversor nativo (mesmo motor WebKit do app → fidelidade total)
+  if (await nativePdf(htmlPath, outPath)) return { ok: true };
+
   const chromium = findChromium();
   if (!chromium) {
     const fallback = join(tmpdir(), `mdstudio-print-${stamp}.html`);
@@ -226,6 +253,23 @@ async function handleApi(action: string, req: Request, options: ServerOptions): 
     case "health":
       return json({ ok: true });
 
+    case "version":
+      return json({ version: APP_VERSION });
+
+    case "update/check": {
+      try {
+        return json(await checkForUpdate());
+      } catch (err) {
+        return json({ error: err instanceof Error ? err.message : String(err) }, 502);
+      }
+    }
+
+    case "update/install": {
+      const dmgUrl = String(body.dmgUrl ?? "");
+      const result = await installUpdate(dmgUrl);
+      return json(result, result.ok ? 200 : 400);
+    }
+
     case "initial":
       return json({ path: options.initialFile });
 
@@ -355,15 +399,31 @@ async function handleApi(action: string, req: Request, options: ServerOptions): 
     case "print": {
       const html = String(body.html ?? "");
       const title = String(body.title ?? "Documento");
-      const printPath = join(tmpdir(), `mdstudio-print-${Date.now()}.html`);
-      await Bun.write(printPath, buildStandaloneHtml(html, title, true));
-      Bun.spawn(["open", printPath]);
-      return json({ ok: true });
+      const stamp = Date.now();
+      // Nativo: gera o PDF com o helper e abre no Preview (diálogo de impressão nativo)
+      const htmlPath = join(tmpdir(), `mdstudio-print-${stamp}.html`);
+      await Bun.write(htmlPath, buildStandaloneHtml(html, title));
+      const pdfPath = join(tmpdir(), `mdstudio-print-${stamp}.pdf`);
+      if (await nativePdf(htmlPath, pdfPath)) {
+        Bun.spawn(["open", pdfPath]);
+        return json({ ok: true, native: true });
+      }
+      // Fallback (dev/sem helper): navegador com print() automático
+      const fallback = join(tmpdir(), `mdstudio-print-${stamp}-fb.html`);
+      await Bun.write(fallback, buildStandaloneHtml(html, title, true));
+      Bun.spawn(["open", fallback]);
+      return json({ ok: true, native: false });
     }
 
     case "reveal": {
       const path = String(body.path ?? "");
       if (path.startsWith("/")) Bun.spawn(["open", "-R", path]);
+      return json({ ok: true });
+    }
+
+    case "open-url": {
+      const url = String(body.url ?? "");
+      if (url.startsWith("https://")) Bun.spawn(["open", url]);
       return json({ ok: true });
     }
 

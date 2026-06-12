@@ -12,6 +12,7 @@ import { SourceEditor } from "./components/SourceEditor";
 import { StatusBar, type StatusMessage } from "./components/StatusBar";
 import { TabBar } from "./components/TabBar";
 import { Toolbar } from "./components/Toolbar";
+import { UpdateBanner } from "./components/UpdateBanner";
 import { Welcome } from "./components/Welcome";
 import { api, type SessionDoc } from "./lib/api";
 import { SAMPLE_DOC, SAMPLE_DOC_NAME } from "./lib/sampleDoc";
@@ -783,6 +784,7 @@ export default function App() {
 
   return (
     <div className="flex h-full flex-col">
+      <UpdateBanner />
       {docs.length > 1 && activeId !== null && (
         <TabBar
           tabs={docs.map((d) => ({

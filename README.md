@@ -31,8 +31,9 @@ Abrir um arquivo markdown no Mac normalmente significa cair num editor de códig
 
 ### Exportação e impressão
 - PDF, HTML, Word (DOCX) e RTF com a mesma tipografia do app (fontes embutidas no arquivo exportado)
-- Impressão (⌘P) pelo diálogo nativo do macOS
-- DOCX e RTF usam o conversor nativo do sistema (textutil); PDF usa um navegador Chromium se houver um instalado, com alternativa pelo diálogo de impressão
+- O PDF é gerado pelo mesmo motor de renderização do app (WebKit nativo): o arquivo exportado fica idêntico ao documento na tela, com paginação A4 que respeita as quebras entre blocos
+- Impressão (⌘P) gera o PDF e abre no Pré-Visualização
+- DOCX e RTF usam o conversor nativo do sistema (textutil)
 
 ### Atalhos principais
 
@@ -75,7 +76,7 @@ Qualidade:
 ```sh
 bun run typecheck  # TypeScript estrito
 bun run lint       # Biome
-bun run test       # Vitest (17 testes, incluindo roundtrip de markdown e fluxos de sessão)
+bun run test       # Vitest (21 testes: roundtrip de markdown, sessão, conflito de disco, watcher, updater)
 ```
 
 Gerar o aplicativo:
@@ -103,12 +104,16 @@ Pontos de interesse:
 - A fonte da verdade é a string markdown; TipTap (Visual) e CodeMirror (Código) são visões sincronizadas
 - A sessão (abas, conteúdo, rascunhos) é gravada com debounce em `~/Library/Application Support/MarkdownStudio/session.json`
 - Exportações partem do mesmo HTML que o app renderiza, com CSS e fontes embutidos, garantindo fidelidade
+- A barra de menus nativa (Objective-C) e o conversor de PDF (Swift/WebKit) são compilados e embutidos no app durante o build
 - Stack: Bun, TypeScript estrito, React 19, Vite, Tailwind CSS 4, TipTap 2, CodeMirror 6, Vitest, Biome
+
+## Atualizações
+
+O app verifica novas versões nas releases do GitHub ao abrir e mostra um aviso quando há uma disponível. Em um clique, ele baixa a nova versão, confere a assinatura e a notarização da Apple, e se reinstala sozinho. Não é preciso voltar ao GitHub manualmente.
 
 ## Limitações conhecidas
 
-- Apenas macOS (a janela nativa, os diálogos e os conversores de exportação usam recursos do sistema)
-- A exportação direta para PDF depende de um navegador Chromium instalado; sem ele, o app abre o diálogo de impressão para salvar como PDF
+- Apenas macOS (a janela nativa, os diálogos e a barra de menus usam recursos do sistema)
 
 ## Licença
 

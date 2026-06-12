@@ -56,7 +56,20 @@ export const api = {
     call<{ docs: SessionDoc[]; activeIndex?: number; lastClosed?: SessionDoc | null }>(
       "session/load",
     ),
+  checkUpdate: () => call<UpdateInfo>("update/check"),
+  installUpdate: (dmgUrl: string) =>
+    call<{ ok: boolean; error?: string }>("update/install", { dmgUrl }),
+  openUrl: (url: string) => call<{ ok: true }>("open-url", { url }),
 };
+
+export interface UpdateInfo {
+  available: boolean;
+  current: string;
+  latest: string;
+  notes: string;
+  releaseUrl: string;
+  dmgUrl: string | null;
+}
 
 export interface SessionDoc {
   path: string | null;

@@ -13,11 +13,12 @@
  */
 import { chmod, cp, mkdir, rm, symlink } from "node:fs/promises";
 import { join } from "node:path";
+import { APP_VERSION } from "../desktop/version";
 
 const ROOT = new URL("..", import.meta.url).pathname;
 const APP_NAME = "Markdown Studio";
 const APP_DIR = join(ROOT, "build", `${APP_NAME}.app`);
-const VERSION = "1.0.0";
+const VERSION = APP_VERSION;
 const WANT_DMG = process.argv.includes("--dmg");
 const NOTARY_PROFILE = process.env.MDSTUDIO_NOTARY_PROFILE ?? "mdstudio-notary";
 
@@ -93,6 +94,27 @@ await cp(
 );
 await cp(join(ROOT, "assets", "icon.icns"), join(resources, "icon.icns"));
 
+// Conversor nativo HTML→PDF (WebKit), compilado e embutido no bundle
+await run([
+  "swiftc",
+  "-O",
+  join(ROOT, "desktop", "html2pdf.swift"),
+  "-o",
+  join(resources, "html2pdf"),
+]);
+
+// Menu bar nativo (dylib Objective-C), compilado e embutido no bundle
+await run([
+  "clang",
+  "-dynamiclib",
+  "-framework",
+  "Cocoa",
+  "-O2",
+  join(ROOT, "desktop", "menu.m"),
+  "-o",
+  join(resources, "libmenu.dylib"),
+]);
+
 const launcher = `#!/bin/sh
 DIR="$(cd "$(dirname "$0")" && pwd)"
 export WEBVIEW_PATH="$DIR/../Resources/libwebview.dylib"
@@ -109,8 +131,8 @@ const infoPlist = `<?xml version="1.0" encoding="UTF-8"?>
   <key>CFBundleName</key><string>${APP_NAME}</string>
   <key>CFBundleDisplayName</key><string>${APP_NAME}</string>
   <key>CFBundleIdentifier</key><string>com.emerson.markdownstudio</string>
-  <key>CFBundleVersion</key><string>1.0.0</string>
-  <key>CFBundleShortVersionString</key><string>1.0.0</string>
+  <key>CFBundleVersion</key><string>${VERSION}</string>
+  <key>CFBundleShortVersionString</key><string>${VERSION}</string>
   <key>CFBundlePackageType</key><string>APPL</string>
   <key>CFBundleExecutable</key><string>launcher</string>
   <key>CFBundleIconFile</key><string>icon</string>
@@ -148,6 +170,26 @@ if (identity) {
     "--sign",
     identity,
     join(resources, "libwebview.dylib"),
+  ]);
+  await run([
+    "codesign",
+    "--force",
+    "--timestamp",
+    "--options",
+    "runtime",
+    "--sign",
+    identity,
+    join(resources, "html2pdf"),
+  ]);
+  await run([
+    "codesign",
+    "--force",
+    "--timestamp",
+    "--options",
+    "runtime",
+    "--sign",
+    identity,
+    join(resources, "libmenu.dylib"),
   ]);
   await run([
     "codesign",
