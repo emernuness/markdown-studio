@@ -6,6 +6,7 @@ Análise de 2026-06-12. Dos 12 débitos identificados, 8 foram corrigidos na pr�
 
 ## Issue 1
 
+**Issue criada:** https://github.com/emernuness/markdown-studio/issues/1
 **Título:** [TD-001] 🟠 Componente App concentra todas as responsabilidades do shell (~800 linhas)
 **Labels:** `high`, `solid`, `clean-code`, `tech-debt`
 
@@ -49,6 +50,7 @@ O raio de regressão de qualquer mudança é o app inteiro. Dois bugs reais dest
 
 ## Issue 2
 
+**Issue criada:** https://github.com/emernuness/markdown-studio/issues/2
 **Título:** [TD-002] 🟡 handleApi roteia 16 ações num único switch
 **Labels:** `medium`, `architecture`, `tech-debt`
 
@@ -99,6 +101,7 @@ Handlers não podem ser importados nem testados isoladamente (relacionado ao TD-
 
 ## Issue 3
 
+**Issue criada:** https://github.com/emernuness/markdown-studio/issues/3
 **Título:** [TD-006] 🟡 Serialização e busca percorrem o documento inteiro a cada interação
 **Labels:** `medium`, `performance`, `tech-debt`
 
@@ -140,6 +143,7 @@ Em documentos na casa de 1 MB, a latência de digitação e de busca cresce de f
 
 ## Issue 4
 
+**Issue criada:** https://github.com/emernuness/markdown-studio/issues/4
 **Título:** [TD-011] 🟢 Backend desktop sem testes unitários
 **Labels:** `low`, `testing`, `tech-debt`
 
