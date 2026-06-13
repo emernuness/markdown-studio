@@ -935,7 +935,7 @@ export default function App() {
           {/* biome-ignore lint/a11y/noStaticElementInteractions: clique na margem foca o editor; o editor em si já é interativo */}
           {/* biome-ignore lint/a11y/useKeyWithClickEvents: idem — interação por teclado acontece dentro do editor */}
           <div
-            className={`mx-auto max-w-[780px] px-14 py-12 ${active !== null && mode === "rich" ? "" : "hidden"}`}
+            className={`mx-auto max-w-[880px] px-14 py-12 ${active !== null && mode === "rich" ? "" : "hidden"}`}
             onClick={() => editor?.commands.focus()}
           >
             <EditorContent editor={editor} />

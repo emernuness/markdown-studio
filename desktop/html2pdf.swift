@@ -28,11 +28,22 @@ let margin: CGFloat = 51.0
 let contentW = pageW - margin * 2
 let contentH = pageH - margin * 2
 
+// Largura de design: a coluna de texto do app (.doc-prose = max-w-[880px] menos
+// px-14 dos dois lados = 880 - 112 = 768px). Renderizamos o documento NESSA largura
+// para preservar exatamente as proporcoes do app (quebras de linha, tamanho relativo
+// de fonte) e depois reduzimos cada fatia por `scale` para caber na coluna do A4.
+// Sem isso, o conteudo era esticado para 493px com fonte de 17.5pt — coluna estreita
+// e fonte gigante no papel.
+let designWidth: CGFloat = 768.0
+let scale = contentW / designWidth
+// Altura de uma pagina medida em px de design (apos escalar, ocupa contentH no papel).
+let pageContentPx = contentH / scale
+
 let app = NSApplication.shared
 app.setActivationPolicy(.prohibited)
 
 let webView = WKWebView(
-  frame: NSRect(x: 0, y: 0, width: contentW, height: contentH),
+  frame: NSRect(x: 0, y: 0, width: designWidth, height: pageContentPx),
   configuration: WKWebViewConfiguration()
 )
 
@@ -42,10 +53,10 @@ let MEASURE_JS = """
 (function () {
   var b = document.body;
   b.style.maxWidth = 'none';
-  b.style.width = \(contentW) + 'px';
+  b.style.width = \(designWidth) + 'px';
   b.style.margin = '0';
   b.style.padding = '0';
-  var pageContent = \(contentH);
+  var pageContent = \(pageContentPx);
   var total = Math.ceil(b.scrollHeight);
   // Fronteiras seguras de corte: a base de cada filho direto do body.
   var breaks = [0];
@@ -103,8 +114,8 @@ final class Delegate: NSObject, WKNavigationDelegate {
         let breaks = breaksArr.map { CGFloat($0.doubleValue) }
         let pages = computePages(
           total: CGFloat(total), pageContent: CGFloat(pageContent), breaks: breaks)
-        // Reforça o frame na largura de conteudo apos o ajuste de layout.
-        webView.frame = NSRect(x: 0, y: 0, width: contentW, height: CGFloat(total))
+        // Reforça o frame na largura de design apos o ajuste de layout.
+        webView.frame = NSRect(x: 0, y: 0, width: designWidth, height: CGFloat(total))
         renderPages(webView: webView, pages: pages, index: 0, out: [])
       }
     }
@@ -128,7 +139,7 @@ func renderPages(webView: WKWebView, pages: [(CGFloat, CGFloat)], index: Int, ou
   }
   let (start, end) = pages[index]
   let config = WKPDFConfiguration()
-  config.rect = CGRect(x: 0, y: start, width: contentW, height: end - start)
+  config.rect = CGRect(x: 0, y: start, width: designWidth, height: end - start)
   webView.createPDF(configuration: config) { result in
     switch result {
     case .success(let data):
@@ -150,11 +161,16 @@ func compose(slices: [Data], pages: [(CGFloat, CGFloat)]) {
   }
   for (i, data) in slices.enumerated() {
     guard let doc = PDFDocument(data: data), let page = doc.page(at: 0) else { continue }
+    // Altura da fatia em px de design; ao escalar por `scale` vira a altura no papel.
     let sliceH = pages[i].1 - pages[i].0
+    let drawnH = sliceH * scale
     ctx.beginPDFPage(nil)
     ctx.saveGState()
-    // Conteudo no topo da pagina, recuado pela margem (coordenadas bottom-up).
-    ctx.translateBy(x: margin, y: pageH - margin - sliceH)
+    // Conteudo no topo da coluna, recuado pela margem (coordenadas bottom-up).
+    // Reduz a fatia (768px de largura) para a coluna do A4 (~493pt), mantendo as
+    // proporcoes do app e levando a fonte para um tamanho de impressao natural.
+    ctx.translateBy(x: margin, y: pageH - margin - drawnH)
+    ctx.scaleBy(x: scale, y: scale)
     page.draw(with: .mediaBox, to: ctx)
     ctx.restoreGState()
     ctx.endPDFPage()

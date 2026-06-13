@@ -1,5 +1,5 @@
 /** Fonte única da versão do app. Mantida em sincronia com package.json. */
-export const APP_VERSION = "1.1.1";
+export const APP_VERSION = "1.1.2";
 
 /** Repositório público que hospeda as releases (usado pela verificação de atualização). */
 export const REPO = "emernuness/markdown-studio";

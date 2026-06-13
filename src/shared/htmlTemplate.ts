@@ -25,7 +25,7 @@ const DOC_CSS = `
     line-height: 1.72;
     font-variation-settings: "opsz" 17;
     color: var(--ink);
-    max-width: 780px;
+    max-width: 880px;
     margin: 0 auto;
     padding: 56px 56px 96px;
     -webkit-print-color-adjust: exact;
